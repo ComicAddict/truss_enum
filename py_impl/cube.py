@@ -72,6 +72,7 @@ def decode(e):
 # complete = set(range(2**vert_len))
 truss_elem_num = int(sys.argv[1])
 complete = set((2**np.array(list(combinations(range(vert_len), truss_elem_num)))).sum(1))
+print("Length of complete set: ",len(complete))
 
 type_classes = []
 
@@ -97,10 +98,40 @@ while complete:
     complete -= tmp
     type_classes.append(tmp)
 
+# TODO: listing each truss separately
+for i,cl in enumerate(type_classes):
+    r = next(iter(cl))
+    i_f = 0
+    i_e = 0
+    i_v = 0
+    trusses = decode(r)
+    # for t in trusses:
+    #     if 
+    print(i,":", decode(r),"\tlength: ", len(cl))
 # print(type_classes)
 print(len(type_classes), " number of distinct configurations for ", truss_elem_num, " number of truss elements")
 
+connected = 0
+for cl in type_classes:
+    r = next(iter(cl))
+    edges = decode(r)
+    fill_vol = np.zeros((3,3,3), dtype=int)
+    fill_vol[1,1,1] = 1
+    indices = np.nonzero(fill_vol)
+    prev_fill = np.copy(fill_vol)
+    while(True):
+        for x, y, z in zip(*np.nonzero(fill_vol)):
+            for e in edges:
+                fill_vol[(e[0]+x) % 3,(e[1]+y) % 3,(e[2]+z) % 3] = 1
+        if (prev_fill == fill_vol).all():
+            break
+        prev_fill = np.copy(fill_vol)
+    if (fill_vol == 1).all():
+        # print("Representative ", r, ": \n\n", edges, "\nis fully connected\n")
+        connected += 1
 
+print("Total ", connected, " fully connected representatives")
+        
 
 
 # for i in range(2**vert_len):
